@@ -39,7 +39,14 @@ const putMarca = async (req, res, next) => {
     const oldMarca = await Marca.findById(id);
     const newMarca = new Marca(req.body);
     newMarca._id = id;
-    newMarca.moviles = [...oldMarca.moviles, ...req.body.moviles];
+    const moviles = req.body.moviles || [];
+    newMarca.moviles = [...oldMarca.moviles, ...moviles];
+    if (req.file) {
+      newMarca.image = req.file.path;
+      deleteFile(oldMarca.image);
+    } else {
+      newMarca.image = req.body.image;
+    }
     const updatedMarca = await Marca.findByIdAndUpdate(id, newMarca, { new: true });
     return res.status(200).json(updatedMarca);
   } catch (error) {

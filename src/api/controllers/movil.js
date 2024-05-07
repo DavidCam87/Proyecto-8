@@ -38,6 +38,13 @@ const putMovil = async (req, res, next) => {
     const { id } = req.params;
     const newMovil = new Movil(req.body);
     newMovil._id = id;
+    const oldMovil = await Movil.findById(id);
+    if (req.file) {
+      newMovil.image = req.file.path;
+      deleteFile(oldMovil.image);
+    } else {
+      newMovil.image = req.body.image;
+    }
     const updatedMovil = await Movil.findByIdAndUpdate(id, newMovil, { new: true });
     return res.status(200).json(updatedMovil);
   } catch (error) {

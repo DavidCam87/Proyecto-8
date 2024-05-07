@@ -1,5 +1,6 @@
 const { deleteFile } = require("../../utils/deleteFile");
 const { generateSing } = require("../../utils/jwt");
+const cloudinary = require("cloudinary").v2;
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 
@@ -52,6 +53,14 @@ const putUser = async (req, res, next) => {
     const { id } = req.params;
     const newUser = new User(req.body);
     newUser._id = id;
+    const oldImage = await User.findById(id)
+    if (req.file) {
+      newUser.image = req.file.path;
+      deleteFile(oldImage.image);
+
+    } else {
+      newUser.image = req.body.image;
+    }
     const updatedUser = await User.findByIdAndUpdate(id, newUser, { new: true });
     return res.status(200).json(updatedUser);
   } catch (error) {
